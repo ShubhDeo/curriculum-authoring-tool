@@ -13,6 +13,7 @@ const TableComponent = () => {
   const [userData, setUserData] = useState([]);
   const [rootNode, setRootNode] = useState(null);
   const getParent = useRef({}); //child_id -> parent obj
+  const getNodeIdx = useRef({}); //flat idx -> node
 
   useEffect(() => {
     const root = new Node("", v4());
@@ -24,7 +25,7 @@ const TableComponent = () => {
 
   return (
     <div className="mt-4">
-      <DragDropContext onDragEnd={(results) => {handleDragEnd(results,userData, setUserData,getParent)}}>
+      <DragDropContext onDragEnd={(results) => {handleDragEnd(results,userData, setUserData,getParent,getNodeIdx)}}>
         <table className="table bordered">
           <thead>
             <tr>
@@ -36,7 +37,7 @@ const TableComponent = () => {
           <StrictModeDroppable droppableId="tbody">
             {(provided) => (
               <tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {Tree(rootNode, true, 0, {idx: 0},userData, setUserData, getParent)}
+                {Tree(rootNode, true, 0, {idx: 0},userData, setUserData, getParent, getNodeIdx)}
                 {provided.placeholder}
               </tbody>
             )}

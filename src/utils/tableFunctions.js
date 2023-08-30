@@ -84,27 +84,15 @@ export const handleOutdent = (root, userData, setUserData,getParent) => {
 };
 
 
-function fetchNodeWithGivenIndex(root, curr_idx, target_idx, level) {
-  if(!root) {return 0;}
-  curr_idx.idx++;
-  if(curr_idx.idx-1 === target_idx) {
-    return {root, level};
-  }
-  let ans=null;
-  for(let i=0;i<root.child.length;i++) {
-    ans=ans||fetchNodeWithGivenIndex(root.child[i], curr_idx,target_idx,level+1);
-  }
-  return ans;
-}
-
-export const handleDragEnd = (results, userData, setUserData, getParent) => {
+export const handleDragEnd = (results, userData, setUserData, getParent,getNodeIdx) => {
     let srcIdx = results.source.index;
     let desIdx = results.destination.index;
 
     if(srcIdx!==desIdx) {
         if(srcIdx>desIdx) {desIdx--;}
-        let des = fetchNodeWithGivenIndex(userData[0],{idx:0},desIdx,0);
-        let src = fetchNodeWithGivenIndex(userData[0],{idx:0},srcIdx,0);
+        let des = getNodeIdx[desIdx];
+        let src = getNodeIdx[srcIdx];
+        
         let srcNode = src.root;
         let desNode = des.root;
         //console.log(des, src);

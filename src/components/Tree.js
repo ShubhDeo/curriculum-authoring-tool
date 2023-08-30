@@ -14,7 +14,7 @@ import { fontStyle } from "../utils/colorCoding";
 import { Draggable } from "react-beautiful-dnd";
 
 
-export function Tree(root, isRoot, level, obj, userData, setUserData, getParent) {
+export function Tree(root, isRoot, level, obj, userData, setUserData, getParent, getNodeIdx) {
     if (!root) {
       return;
     }
@@ -22,6 +22,7 @@ export function Tree(root, isRoot, level, obj, userData, setUserData, getParent)
     if(!isRoot) {
         obj.idx++;
     }
+    getNodeIdx[obj.idx] = {root, level};
     
     return (
       <>
@@ -76,7 +77,7 @@ export function Tree(root, isRoot, level, obj, userData, setUserData, getParent)
               )}
            </Draggable>
         )}
-        {root.child.map((child) => Tree(child, false, level + 1, obj,userData, setUserData,getParent))}
+        {root.child.map((child) => Tree(child, false, level + 1, obj,userData, setUserData,getParent,getNodeIdx))}
       </>
     );
   }
