@@ -13,7 +13,7 @@ const TableComponent = () => {
   const [userData, setUserData] = useState([]);
   const [rootNode, setRootNode] = useState(null);
   const getParent = useRef({}); //child_id -> parent obj
-  const getNodeIdx = useRef({}); //flat idx -> node
+  const getNodeIdx = useRef({}); //flat idx -> {node, level}
 
   useEffect(() => {
     const root = new Node("", v4());
