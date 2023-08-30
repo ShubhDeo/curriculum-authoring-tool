@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Node } from "../utils/Node";
 import {
   insertChild,
@@ -12,17 +12,19 @@ import {Tree} from './Tree'
 const TableComponent = () => {
   const [userData, setUserData] = useState([]);
   const [rootNode, setRootNode] = useState(null);
+  const getParent = useRef({}); //child_id -> parent obj
 
   useEffect(() => {
     const root = new Node("", v4());
     setRootNode(root);
+    getParent.current[root.id] = null;
     setUserData([...userData, root]);
   }, []);
 
 
   return (
     <div className="mt-4">
-      <DragDropContext onDragEnd={(results) => {handleDragEnd(results,userData, setUserData)}}>
+      <DragDropContext onDragEnd={(results) => {handleDragEnd(results,userData, setUserData,getParent)}}>
         <table className="table bordered">
           <thead>
             <tr>
@@ -34,7 +36,7 @@ const TableComponent = () => {
           <StrictModeDroppable droppableId="tbody">
             {(provided) => (
               <tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {Tree(rootNode, true, 0, {idx: 0},userData, setUserData)}
+                {Tree(rootNode, true, 0, {idx: 0},userData, setUserData, getParent)}
                 {provided.placeholder}
               </tbody>
             )}
@@ -46,7 +48,7 @@ const TableComponent = () => {
           type="button"
           className="btn btn-primary"
           onClick={() => {
-            insertChild(rootNode, setUserData, userData);
+            insertChild(rootNode, setUserData, userData, getParent);
           }}
         >
           Add Standard

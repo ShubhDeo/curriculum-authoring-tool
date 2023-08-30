@@ -1,43 +1,33 @@
 import { Node } from "./Node";
 import {v4} from "uuid";
 
-export const insertChild = (root, setUserData, userData) => {
+export const insertChild = (root, setUserData, userData,getParent) => {
   //A new node with level = 1 will be created.
   let newNode = new Node("", v4());
   root.child.push(newNode);
+  getParent.current[newNode.id] = root; //child_id -> parent obj
   setUserData([...userData, newNode]);
 };
 
-function findParent(root, targetNode) {
-  if (!root) {
-    return null;
-  }
-  let ans = null;
-  for (let i = 0; i < root.child.length; i++) {
-    if (root.child[i] === targetNode) {
-      return root;
-    }
-  }
-  for (let i = 0; i < root.child.length; i++) {
-    ans = ans || findParent(root.child[i], targetNode);
-  }
-  return ans;
-}
 
-function deleteAllChildNodes(root, userData) {
+function deleteAllChildNodes(root, userData, getParent) {
+  if(!root) {
+    delete (getParent.current[root.id]);
+  }
   root.child.forEach((c) => {
-    userData = deleteAllChildNodes(c, userData);
+    userData = deleteAllChildNodes(c, userData, getParent);
   });
   userData = userData.filter((c) => c !== root);
   return userData;
 }
 
-export const deleteNode = (root, userData, setUserData) => {
-  let parent = findParent(userData[0], root);
+export const deleteNode = (root, userData, setUserData,getParent) => {
+  let parent = getParent.current[root.id];
+  //console.log(parent, getParent.current[root.id])
   let temp = [...userData];
 
   parent.child = parent.child.filter((c) => c !== root);
-  temp = deleteAllChildNodes(root, temp);
+  temp = deleteAllChildNodes(root, temp, getParent);
   temp = temp.filter((u) => u !== root);
   setUserData(temp);
 };
@@ -49,8 +39,8 @@ export const handleTextChange = (e, root, userData, setUserData) => {
   setUserData(temp);
 };
 
-export const handleIndent = (root, userData, setUserData) => {
-  let parent = findParent(userData[0], root);
+export const handleIndent = (root, userData, setUserData, getParent) => {
+  let parent = getParent.current[root.id];
   //find the latest parent for root with parent.level = level;
   let recentParentIdx = -1;
   parent.child.forEach((c, i) => {
@@ -62,7 +52,9 @@ export const handleIndent = (root, userData, setUserData) => {
     //remove root from parent.child array.
     let temp = [...userData];
     parent.child = parent.child.filter((c) => c !== root);
+
     parent.child[recentParentIdx].child.push(root);
+    getParent.current[root.id] = parent.child[recentParentIdx];
     //console.log(temp);
     setUserData(temp);
   } else {
@@ -70,14 +62,15 @@ export const handleIndent = (root, userData, setUserData) => {
   }
 };
 
-export const handleOutdent = (root, userData, setUserData) => {
-  let parent = findParent(userData[0], root);
+export const handleOutdent = (root, userData, setUserData,getParent) => {
+  let parent = getParent.current[root.id];
   if (parent === userData[0]) {
     alert("Cannot Outdent row.");
   } else {
-    let grandParent = findParent(userData[0], parent);
+    let grandParent = getParent.current[parent.id];
     let temp = [...userData];
     parent.child = parent.child.filter((c) => c !== root);
+    getParent.current[root.id] = grandParent;
     let idx = -1;
     for (let i = 0; i < grandParent.child.length; i++) {
       if (grandParent.child[i] === parent) {
@@ -104,7 +97,7 @@ function fetchNodeWithGivenIndex(root, curr_idx, target_idx, level) {
   return ans;
 }
 
-export const handleDragEnd = (results, userData, setUserData) => {
+export const handleDragEnd = (results, userData, setUserData, getParent) => {
     let srcIdx = results.source.index;
     let desIdx = results.destination.index;
 
@@ -119,29 +112,35 @@ export const handleDragEnd = (results, userData, setUserData) => {
           //transfer all child from desNode to srcNode.
           //and place srcNode just after desNode.
           let temp = [...userData];
-          let desParent = findParent(userData[0], desNode);
-          let srcParent = findParent(userData[0], srcNode);
+          let desParent = getParent.current[desNode.id];
+          let srcParent = getParent.current[srcNode.id];
+
           srcParent.child = srcParent.child.filter(c => c!==srcNode);
+
           desNode.child.forEach(c => {
+            getParent.current[c.id] = srcNode;
             srcNode.child.push(c);
           })
-          console.log(srcNode);
+          
           desNode.child = [];
-          console.log(desNode);
+          
           let idx=-1;
+
           desParent.child.forEach((c, i) => {
             if(c === desNode) {
               idx=i;
             }
           })
           desParent.child.splice(idx+1,0,srcNode);
+          getParent.current[srcNode.id] = desParent;
           setUserData(temp);
         }else if(des.level+1 === src.level) {
           //assign desNode as parent of the srcNode.
           let temp = [...userData];
-          let srcParent = findParent(userData[0], srcNode);
+          let srcParent = getParent.current[srcNode.id];
           srcParent.child = srcParent.child.filter(c => c!==srcNode);
           desNode.child.splice(0,0,srcNode);
+          getParent.current[srcNode.id] = desNode;
           setUserData(temp);
         }else {
           alert("Invalid drag.");

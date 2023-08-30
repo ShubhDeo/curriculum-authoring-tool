@@ -14,7 +14,7 @@ import { fontStyle } from "../utils/colorCoding";
 import { Draggable } from "react-beautiful-dnd";
 
 
-export function Tree(root, isRoot, level, obj, userData, setUserData) {
+export function Tree(root, isRoot, level, obj, userData, setUserData, getParent) {
     if (!root) {
       return;
     }
@@ -40,17 +40,17 @@ export function Tree(root, isRoot, level, obj, userData, setUserData) {
                   <td>
                     <BsIndent
                         className="mx-1"
-                        onClick={() => handleIndent(root, userData, setUserData)}
+                        onClick={() => handleIndent(root, userData, setUserData, getParent)}
                       />
                       <BsUnindent
                         className="mx-1"
-                        onClick={() => handleOutdent(root, userData, setUserData)}
+                        onClick={() => handleOutdent(root, userData, setUserData, getParent)}
                       />
                       
                       <AiOutlineDelete
                         className="mx-1"
                         onClick={() => {
-                          deleteNode(root, userData, setUserData);
+                          deleteNode(root, userData, setUserData, getParent);
                         }}
                       />
                   </td>
@@ -66,7 +66,7 @@ export function Tree(root, isRoot, level, obj, userData, setUserData) {
                       }}
                       value={root.title}
                       onChange={(e) => {
-                        handleTextChange(e, root, userData, setUserData);
+                        handleTextChange(e, root, userData, setUserData,getParent);
                       }}
                       type="text"
                       className="form-control"
@@ -76,7 +76,7 @@ export function Tree(root, isRoot, level, obj, userData, setUserData) {
               )}
            </Draggable>
         )}
-        {root.child.map((child) => Tree(child, false, level + 1, obj,userData, setUserData))}
+        {root.child.map((child) => Tree(child, false, level + 1, obj,userData, setUserData,getParent))}
       </>
     );
   }
