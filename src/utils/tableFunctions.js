@@ -1,9 +1,12 @@
-import { Node } from "./Node";
 import {v4} from "uuid";
 
 export const insertChild = (root, setUserData, userData,getParent) => {
   //A new node with level = 1 will be created.
-  let newNode = new Node("", v4());
+  let newNode = {
+    id: v4(),
+    title: "",
+    child: []
+  }
   root.child.push(newNode);
   getParent.current[newNode.id] = root; //child_id -> parent obj
   setUserData([...userData, newNode]);
@@ -89,7 +92,7 @@ export const handleDragEnd = (results, userData, setUserData, getParent,getNodeI
     let desIdx = results.destination.index;
 
     if(srcIdx!==desIdx) {
-        if(srcIdx>desIdx) {desIdx--;}
+        if(srcIdx>desIdx) {desIdx--;} //bottom to top
         let des = getNodeIdx[desIdx];
         let src = getNodeIdx[srcIdx];
         
@@ -136,3 +139,68 @@ export const handleDragEnd = (results, userData, setUserData, getParent,getNodeI
     }
 }
 
+
+function createURIDownload(MIME, data, filename) {
+  const a = document.createElement('a');
+  a.setAttribute('href', 'data:' + MIME + '; encoding:utf-8,' + encodeURIComponent(data));
+  a.setAttribute('download', filename);
+
+  a.style.display = 'none';
+  document.body.appendChild(a);
+
+  a.click();
+
+  document.body.removeChild(a);
+}
+
+
+export const saveData = (rootNode) => {
+  createURIDownload('text/plain', JSON.stringify(rootNode, null, 4), "file.txt");
+}
+
+function setAllNodes(root, st, tempArray,parentObj,parent) {
+  //check if each obj has id,title and child array.
+  if(!root || typeof root !== 'object' || root['id']===undefined 
+  || root['title']===undefined || root['child']===undefined || !(Array.isArray(root.child)) || st.has(root['id'])) {
+    return false;
+  }
+  //console.log(root['id'], st.has(root['id']));
+  st.add(root['id']);
+  parentObj[root['id']]=parent;
+  tempArray.push(root);
+  for(let i=0;i<root.child.length;i++) {
+    if(!setAllNodes(root.child[i], st, tempArray,parentObj,root)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export const handleLoad = async (file, setLoad, setUserData, setRootNode,getParent) => {
+  try {
+    setLoad(true);
+    let text = await file.text();
+    text = JSON.parse(text);
+    //console.log(text);
+
+    //id should be unique for each node.
+    //each child be should be an object.
+    //each obj should have id,title and child
+    const st = new Set(); // for unique id.
+    let temp = []; //act as dummy for userData.
+    let parent = {}
+    if(typeof text === 'object' && text !== null && setAllNodes(text,st,temp, parent, null)) {
+      setUserData(temp);
+      setRootNode(text);
+      getParent.current = parent;
+      //setUserData
+      //setRootNode
+    }else {
+      alert("Please check file, each id should be unique, each object should have id, title and child field. child field must be an array of objects.")
+    }
+    setLoad(false);
+  } catch (error) {
+    alert(error.message);
+    setLoad(false);
+  }
+}

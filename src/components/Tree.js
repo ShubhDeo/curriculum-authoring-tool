@@ -12,12 +12,10 @@ import {
 } from "react-icons/bs";
 import { fontStyle } from "../utils/colorCoding";
 import { Draggable } from "react-beautiful-dnd";
+import "../styles.css"
 
 
 export function Tree(root, isRoot, level, obj, userData, setUserData, getParent, getNodeIdx) {
-    if (!root) {
-      return;
-    }
     let padding = level * 20;
     if(!isRoot) {
         obj.idx++;
@@ -40,16 +38,16 @@ export function Tree(root, isRoot, level, obj, userData, setUserData, getParent,
                   </td>
                   <td>
                     <BsIndent
-                        className="mx-1"
+                        className="mx-1 icon" 
                         onClick={() => handleIndent(root, userData, setUserData, getParent)}
                       />
                       <BsUnindent
-                        className="mx-1"
+                        className="mx-1 icon"
                         onClick={() => handleOutdent(root, userData, setUserData, getParent)}
                       />
                       
                       <AiOutlineDelete
-                        className="mx-1"
+                        className="mx-1 icon"
                         onClick={() => {
                           deleteNode(root, userData, setUserData, getParent);
                         }}
