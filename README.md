@@ -21,3 +21,7 @@ This tool is designed to assist teachers in authoring curriculum for a subject. 
 - **Load/Save Functionality**: The tool provides two essential functions to manage curriculum data:
     - Save: Save the curriculum structure created by the user to a JSON file. This allows you to preserve and export your curriculum for future use or sharing.
     - Load: Load a previously saved JSON file to recreate the curriculum structure in the tool's user interface. This functionality is similar to the save/load feature found in many games.
+
+ ## Deployed Link and Demo Video
+ - Deployed Link: https://64f27ac0e822fe1d1478c494--heroic-croissant-f73e0a.netlify.app/
+ - Demo Link: https://www.loom.com/share/React-Curriculum-Authoring-Application-d1a2e141309341ab80b8eded13b7004e?sid=8ebce7c7-566b-427c-811e-efc333c3fd84
